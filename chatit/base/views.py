@@ -78,13 +78,14 @@ def home(request):
     
     topics = Topic.objects.all()
     room_count = rooms.count()
+    room_messages = Message.objects.filter(Q(room__topic__name__icontains=q))
 
-    context = {'rooms': rooms, 'topics': topics, 'room_count': room_count}
+    context = {'rooms': rooms, 'topics': topics, 'room_count': room_count, 'room_messages' : room_messages}
     return render(request, 'base/home.html', context)
 
 def room(request, pk):
     room = Room.objects.get(id=pk) #with the help of id we brought back one whole single row
-    room_messages = room.message_set.all().order_by('-created') #here message is the Message model but it is just used as lowercase message.
+    room_messages = room.message_set.all() #here message is the Message model but it is just used as lowercase message.
     participants = room.participant.all()
 
     if request.method == 'POST':
@@ -154,3 +155,8 @@ def deleteMessage(request, pk):
         message.delete()
         return redirect('home')
     return render(request, 'base/delete.html', {'obj' : message})
+
+
+
+
+

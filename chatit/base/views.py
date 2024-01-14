@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
+from django.db.models import Q
 from django.http import HttpResponse
-from .models import Room
+from .models import Room , Topic
 from .forms import RoomForm
 
 
@@ -11,9 +12,19 @@ from .forms import RoomForm
 # ]
 
 
-def home  (request):
-    rooms = Room.objects.all() #gives all the room in the variable
-    context = {'rooms': rooms}
+def home(request):
+    q = request.GET.get('q') if request.GET.get('q') != None else '' #checking if q is empty or not and prividing value according to it #else '' measn q is going to be empty
+
+    rooms = Room.objects.filter(
+        Q(topic__name__icontains=q) | #this icontains helps us in making half room searches and get the value like for py you get pytho room
+        Q(name__icontains=q) | #helps to seach things by the username who cretaed that room
+        Q(description__icontains=q)
+        ) #gives all the room in the variable
+    
+    topics = Topic.objects.all()
+    room_count = rooms.count()
+
+    context = {'rooms': rooms, 'topics': topics, 'room_count': room_count}
     return render(request, 'base/home.html', context)
 
 def room(request, pk):

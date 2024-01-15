@@ -101,6 +101,14 @@ def room(request, pk):
     context = {'room' : room, 'room_messages' : room_messages, 'participants': participants}
     return render(request, 'base/room.html',  context)
 
+def userProfile(request, pk):
+    user= User.objects.get(id=pk)
+    room_messages = user.message_set.all()
+    topics = Topic.objects.all()
+    rooms = user.room_set.all()
+    context = {'user': user, 'rooms':rooms, 'topics': topics, 'room_messages': room_messages} 
+    return render(request, 'base/profile.html', context)
+
 @login_required(login_url='login') #now createroom function can only be accesed if user is authenticated
 def createRoom(request):
     form = RoomForm()
@@ -155,6 +163,8 @@ def deleteMessage(request, pk):
         message.delete()
         return redirect('home')
     return render(request, 'base/delete.html', {'obj' : message})
+
+
 
 
 
